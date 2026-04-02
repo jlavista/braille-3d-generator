@@ -18,7 +18,7 @@ import { toast } from 'sonner'
 
 function App() {
   const [inputText, setInputText] = useState('')
-  const [brailleType, setBrailleType] = useState<BrailleType>('grade1')
+  const [brailleType, setBrailleType] = useState<BrailleType>('ueb')
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null)
   const [stlCode, setStlCode] = useState<string>('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
