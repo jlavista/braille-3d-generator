@@ -10,13 +10,17 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Toaster } from '@/components/ui/sonner'
-import { Download, TextAa, Cube } from '@phosphor-icons/react'
+import { Download, TextAa, Cube, Code, Copy } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 function App() {
   const [inputText, setInputText] = useState('')
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null)
+  const [stlCode, setStlCode] = useState<string>('')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   
   const brailleChars = useMemo<BrailleChar[]>(() => {
     if (!inputText) return []
@@ -27,24 +31,63 @@ function App() {
     setGeometry(newGeometry)
   }, [])
 
-  const handleDownload = () => {
+  const generateStlCode = useCallback(() => {
     if (!geometry) {
-      toast.error('No model to download', {
+      toast.error('No model to generate', {
         description: 'Please enter some text first'
       })
-      return
+      return null
     }
 
     try {
-      const stl = generateSTL(geometry)
+      return generateSTL(geometry)
+    } catch (error) {
+      toast.error('Failed to generate STL', {
+        description: 'An error occurred while creating the file'
+      })
+      return null
+    }
+  }, [geometry])
+
+  const handleViewStl = () => {
+    const stl = generateStlCode()
+    if (stl) {
+      setStlCode(stl)
+      setIsDialogOpen(true)
+    }
+  }
+
+  const handleDownloadFromDialog = () => {
+    if (stlCode) {
+      const sanitizedText = inputText.slice(0, 20).replace(/[^a-z0-9]/gi, '_')
+      downloadSTL(stlCode, `braille_${sanitizedText}.stl`)
+      toast.success('STL file downloaded', {
+        description: 'Your 3D model is ready for printing'
+      })
+      setIsDialogOpen(false)
+    }
+  }
+
+  const handleCopyStl = async () => {
+    try {
+      await navigator.clipboard.writeText(stlCode)
+      toast.success('Copied to clipboard', {
+        description: 'STL code has been copied'
+      })
+    } catch (error) {
+      toast.error('Failed to copy', {
+        description: 'Could not copy to clipboard'
+      })
+    }
+  }
+
+  const handleDownload = () => {
+    const stl = generateStlCode()
+    if (stl) {
       const sanitizedText = inputText.slice(0, 20).replace(/[^a-z0-9]/gi, '_')
       downloadSTL(stl, `braille_${sanitizedText}.stl`)
       toast.success('STL file downloaded', {
         description: 'Your 3D model is ready for printing'
-      })
-    } catch (error) {
-      toast.error('Failed to generate STL', {
-        description: 'An error occurred while creating the file'
       })
     }
   }
@@ -113,7 +156,53 @@ function App() {
                     Download your braille model as an STL file
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        onClick={handleViewStl}
+                        disabled={!inputText || !geometry}
+                        variant="outline"
+                        className="w-full"
+                        size="lg"
+                      >
+                        <Code className="mr-2" size={20} />
+                        View STL Code
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-3xl max-h-[80vh]">
+                      <DialogHeader>
+                        <DialogTitle>STL Code</DialogTitle>
+                        <DialogDescription>
+                          ASCII STL format for your braille model
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <ScrollArea className="h-[400px] w-full rounded-md border bg-muted/50">
+                          <pre className="p-4 text-xs font-mono">
+                            <code>{stlCode}</code>
+                          </pre>
+                        </ScrollArea>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleCopyStl}
+                            variant="outline"
+                            className="flex-1"
+                          >
+                            <Copy className="mr-2" size={18} />
+                            Copy to Clipboard
+                          </Button>
+                          <Button
+                            onClick={handleDownloadFromDialog}
+                            className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
+                          >
+                            <Download className="mr-2" size={18} />
+                            Download STL
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   <Button
                     onClick={handleDownload}
                     disabled={!inputText || !geometry}
