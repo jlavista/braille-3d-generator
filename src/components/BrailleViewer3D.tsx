@@ -21,9 +21,9 @@ export function BrailleViewer3D({
   brailleChars,
   baseWidth = 100,
   baseHeight = 30,
-  baseDepth = 2,
+  baseDepth = 3,
   dotRadius = 0.75,
-  dotHeight = 0.5,
+  dotHeight = 0.6,
   cellWidth = 2.5,
   cellHeight = 6.2,
   cellSpacing = 6,
@@ -162,6 +162,8 @@ export function BrailleViewer3D({
     scene.add(group)
 
     if (onGeometryUpdate) {
+      group.updateWorldMatrix(true, true)
+      
       const geometries: THREE.BufferGeometry[] = []
       
       group.traverse((child) => {

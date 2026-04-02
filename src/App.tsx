@@ -214,7 +214,7 @@ function App() {
                     Download STL File
                   </Button>
                   <p className="text-sm text-muted-foreground mt-3 text-center">
-                    Standard braille dimensions for 3D printing
+                    Standard braille dimensions (dots: 1.5mm dia. × 0.6mm high)
                   </p>
                 </CardContent>
               </Card>
