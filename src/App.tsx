@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Toaster } from '@/components/ui/sonner'
 import { Download, TextAa, Cube, Code, Copy } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -178,11 +177,13 @@ function App() {
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">
-                        <ScrollArea className="h-[400px] w-full rounded-md border bg-muted/50">
-                          <pre className="p-4 text-xs font-mono select-text">
-                            <code className="select-text">{stlCode}</code>
-                          </pre>
-                        </ScrollArea>
+                        <div className="relative rounded-md border bg-muted/50 overflow-hidden">
+                          <div className="h-[400px] w-full overflow-auto">
+                            <pre className="p-4 text-xs font-mono whitespace-pre select-text" style={{ userSelect: 'text', WebkitUserSelect: 'text' }}>
+                              {stlCode}
+                            </pre>
+                          </div>
+                        </div>
                         <div className="flex gap-2">
                           <Button
                             onClick={handleCopyStl}
