@@ -148,12 +148,14 @@ function App() {
                       <SelectContent>
                         <SelectItem value="grade1">Grade 1 (Letter-by-letter)</SelectItem>
                         <SelectItem value="grade2">Grade 2 (Contracted)</SelectItem>
+                        <SelectItem value="ueb">UEB (Unified English Braille)</SelectItem>
                         <SelectItem value="numeric">Numeric Only</SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground">
                       {brailleType === 'grade1' && 'Each letter is represented individually'}
                       {brailleType === 'grade2' && 'Common words are shortened using contractions'}
+                      {brailleType === 'ueb' && 'International standard with capital indicators and contractions'}
                       {brailleType === 'numeric' && 'Optimized for numbers and digits'}
                     </p>
                   </div>
@@ -277,6 +279,7 @@ function App() {
             <p className="text-xs mt-1">
               {brailleType === 'grade1' && 'Grade 1: Uncontracted braille with each letter spelled out'}
               {brailleType === 'grade2' && 'Grade 2: Contracted braille with common word abbreviations'}
+              {brailleType === 'ueb' && 'UEB: Unified English Braille - international standard with capitalization'}
               {brailleType === 'numeric' && 'Numeric: Specialized format for numerical content'}
             </p>
           </div>
