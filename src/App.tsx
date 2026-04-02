@@ -179,8 +179,8 @@ function App() {
                       </DialogHeader>
                       <div className="space-y-4">
                         <ScrollArea className="h-[400px] w-full rounded-md border bg-muted/50">
-                          <pre className="p-4 text-xs font-mono">
-                            <code>{stlCode}</code>
+                          <pre className="p-4 text-xs font-mono select-text">
+                            <code className="select-text">{stlCode}</code>
                           </pre>
                         </ScrollArea>
                         <div className="flex gap-2">
