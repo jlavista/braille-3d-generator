@@ -4,7 +4,9 @@ export interface BrailleChar {
   unicode: string
 }
 
-const brailleMap: Record<string, number[]> = {
+export type BrailleType = 'grade1' | 'grade2' | 'numeric'
+
+const grade1Map: Record<string, number[]> = {
   'a': [1],
   'b': [1, 2],
   'c': [1, 4],
@@ -31,16 +33,6 @@ const brailleMap: Record<string, number[]> = {
   'x': [1, 3, 4, 6],
   'y': [1, 3, 4, 5, 6],
   'z': [1, 3, 5, 6],
-  '1': [1],
-  '2': [1, 2],
-  '3': [1, 4],
-  '4': [1, 4, 5],
-  '5': [1, 5],
-  '6': [1, 2, 4],
-  '7': [1, 2, 4, 5],
-  '8': [1, 2, 5],
-  '9': [2, 4],
-  '0': [2, 4, 5],
   ' ': [],
   '.': [2, 5, 6],
   ',': [2],
@@ -64,6 +56,38 @@ const brailleMap: Record<string, number[]> = {
   "'": [3],
 }
 
+const numericIndicator = [3, 4, 5, 6]
+
+const numericMap: Record<string, number[]> = {
+  '1': [1],
+  '2': [1, 2],
+  '3': [1, 4],
+  '4': [1, 4, 5],
+  '5': [1, 5],
+  '6': [1, 2, 4],
+  '7': [1, 2, 4, 5],
+  '8': [1, 2, 5],
+  '9': [2, 4],
+  '0': [2, 4, 5],
+}
+
+const grade2Contractions: Record<string, number[][]> = {
+  'and': [[1, 2, 3, 4, 6]],
+  'for': [[1, 2, 3, 4, 5, 6]],
+  'of': [[1, 2, 3, 5, 6]],
+  'the': [[2, 3, 4, 6]],
+  'with': [[2, 3, 4, 5, 6]],
+  'ch': [[1, 6]],
+  'sh': [[1, 4, 6]],
+  'th': [[1, 4, 5, 6]],
+  'wh': [[1, 5, 6]],
+  'ou': [[1, 2, 5, 6]],
+  'st': [[3, 4]],
+  'ing': [[3, 4, 6]],
+  'ed': [[1, 2, 4, 6]],
+  'er': [[1, 2, 4, 5, 6]],
+}
+
 function dotsToUnicode(dots: number[]): string {
   if (dots.length === 0) return ' '
   
@@ -77,19 +101,32 @@ function dotsToUnicode(dots: number[]): string {
   return String.fromCodePoint(baseCode + offset)
 }
 
-export function textToBraille(text: string): BrailleChar[] {
+function textToBrailleGrade1(text: string): BrailleChar[] {
   const result: BrailleChar[] = []
   const lowerText = text.toLowerCase()
   
   for (let i = 0; i < lowerText.length; i++) {
     const char = lowerText[i]
-    const dots = brailleMap[char]
+    const dots = grade1Map[char]
     
     if (dots !== undefined) {
       result.push({
         char: text[i],
         dots,
         unicode: dotsToUnicode(dots)
+      })
+    } else if (numericMap[char]) {
+      if (i === 0 || !numericMap[lowerText[i - 1]]) {
+        result.push({
+          char: '#',
+          dots: numericIndicator,
+          unicode: dotsToUnicode(numericIndicator)
+        })
+      }
+      result.push({
+        char: text[i],
+        dots: numericMap[char],
+        unicode: dotsToUnicode(numericMap[char])
       })
     } else {
       result.push({
@@ -101,6 +138,126 @@ export function textToBraille(text: string): BrailleChar[] {
   }
   
   return result
+}
+
+function textToBrailleGrade2(text: string): BrailleChar[] {
+  const result: BrailleChar[] = []
+  const lowerText = text.toLowerCase()
+  
+  let i = 0
+  while (i < lowerText.length) {
+    let matched = false
+    
+    for (const [contraction, dotPatterns] of Object.entries(grade2Contractions)) {
+      if (lowerText.substring(i, i + contraction.length) === contraction) {
+        const isWordBoundary = 
+          (i === 0 || lowerText[i - 1] === ' ') &&
+          (i + contraction.length === lowerText.length || lowerText[i + contraction.length] === ' ')
+        
+        if (isWordBoundary || contraction.length <= 2) {
+          for (const dots of dotPatterns) {
+            result.push({
+              char: contraction,
+              dots,
+              unicode: dotsToUnicode(dots)
+            })
+          }
+          i += contraction.length
+          matched = true
+          break
+        }
+      }
+    }
+    
+    if (!matched) {
+      const char = lowerText[i]
+      const dots = grade1Map[char]
+      
+      if (dots !== undefined) {
+        result.push({
+          char: text[i],
+          dots,
+          unicode: dotsToUnicode(dots)
+        })
+      } else if (numericMap[char]) {
+        if (i === 0 || !numericMap[lowerText[i - 1]]) {
+          result.push({
+            char: '#',
+            dots: numericIndicator,
+            unicode: dotsToUnicode(numericIndicator)
+          })
+        }
+        result.push({
+          char: text[i],
+          dots: numericMap[char],
+          unicode: dotsToUnicode(numericMap[char])
+        })
+      } else {
+        result.push({
+          char: text[i],
+          dots: [1, 2, 3, 4, 5, 6],
+          unicode: '⠿'
+        })
+      }
+      i++
+    }
+  }
+  
+  return result
+}
+
+function textToBrailleNumeric(text: string): BrailleChar[] {
+  const result: BrailleChar[] = []
+  let needsIndicator = true
+  
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i]
+    
+    if (char === ' ') {
+      result.push({
+        char: ' ',
+        dots: [],
+        unicode: ' '
+      })
+      needsIndicator = true
+    } else if (numericMap[char]) {
+      if (needsIndicator) {
+        result.push({
+          char: '#',
+          dots: numericIndicator,
+          unicode: dotsToUnicode(numericIndicator)
+        })
+        needsIndicator = false
+      }
+      result.push({
+        char,
+        dots: numericMap[char],
+        unicode: dotsToUnicode(numericMap[char])
+      })
+    } else {
+      result.push({
+        char,
+        dots: [1, 2, 3, 4, 5, 6],
+        unicode: '⠿'
+      })
+      needsIndicator = true
+    }
+  }
+  
+  return result
+}
+
+export function textToBraille(text: string, type: BrailleType = 'grade1'): BrailleChar[] {
+  switch (type) {
+    case 'grade1':
+      return textToBrailleGrade1(text)
+    case 'grade2':
+      return textToBrailleGrade2(text)
+    case 'numeric':
+      return textToBrailleNumeric(text)
+    default:
+      return textToBrailleGrade1(text)
+  }
 }
 
 export function brailleToString(brailleChars: BrailleChar[]): string {

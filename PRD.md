@@ -1,6 +1,6 @@
 # Planning Guide
 
-A web application that translates user-entered text into Grade 1 braille and generates a 3D-printable model (STL format) with visual preview, enabling users to create tactile braille labels and signs.
+A web application that translates user-entered text into braille (Grade 1, Grade 2, or Numeric) and generates a 3D-printable model (STL format) with visual preview, enabling users to create tactile braille labels and signs.
 
 **Experience Qualities**:
 1. **Accessible** - The tool should be intuitive for users who want to create physical braille, with clear visual feedback of the translation.
@@ -13,11 +13,18 @@ A web application that translates user-entered text into Grade 1 braille and gen
 ## Essential Features
 
 ### Text Input & Translation
-- **Functionality**: Accept text input and translate to Grade 1 braille in real-time
-- **Purpose**: Allow users to see their text converted to braille instantly
-- **Trigger**: User types in the text field
-- **Progression**: User types text → System translates to braille → Display braille characters visually → Update 3D preview
-- **Success criteria**: All standard ASCII characters translate correctly to braille, updates happen within 100ms of typing
+- **Functionality**: Accept text input and translate to braille in real-time with selectable braille type (Grade 1, Grade 2, or Numeric)
+- **Purpose**: Allow users to see their text converted to braille instantly with appropriate encoding
+- **Trigger**: User types in the text field or changes braille type selector
+- **Progression**: User types text / selects braille type → System translates to braille using selected format → Display braille characters visually → Update 3D preview
+- **Success criteria**: All standard ASCII characters translate correctly to braille, updates happen within 100ms of typing, braille type changes regenerate model immediately
+
+### Braille Type Selection
+- **Functionality**: Dropdown selector for choosing between Grade 1 (letter-by-letter), Grade 2 (contracted), or Numeric braille formats
+- **Purpose**: Support different braille standards for various use cases and reader preferences
+- **Trigger**: User selects from dropdown menu
+- **Progression**: User opens dropdown → Selects braille type → System immediately re-translates text → Updates preview and display
+- **Success criteria**: Each format produces correct braille output per standards, description text updates to explain selected format
 
 ### 3D Model Preview
 - **Functionality**: Render a 3D visualization of the braille text using Three.js
@@ -92,9 +99,11 @@ Animations should reinforce the sense of precision and provide clear feedback fo
 
 - **Components**: 
   - Input/Textarea for text entry with clear focus states
+  - Select dropdown for braille type selection with descriptions
   - Card components to separate functional areas (input, preview, settings)
   - Slider components for dimensional parameters with live value display
   - Button (primary variant) for STL download with Phosphor download icon
+  - Dialog for displaying STL code with copy functionality
   - Label components for all inputs and parameters
   - Separator to divide sections cleanly
   - Tooltip for explaining braille specifications and parameters
@@ -102,7 +111,7 @@ Animations should reinforce the sense of precision and provide clear feedback fo
 
 - **Customizations**: 
   - Custom Three.js canvas component for 3D preview with OrbitControls
-  - Custom braille translation function implementing Grade 1 braille mapping
+  - Custom braille translation functions implementing Grade 1, Grade 2 (with contractions), and Numeric braille mapping
   - Custom STL generator function to export Three.js geometry
   - Visual braille character display component showing the translated dots
 

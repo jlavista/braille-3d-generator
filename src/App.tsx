@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import * as THREE from 'three'
-import { textToBraille, BrailleChar } from '@/lib/braille'
+import { textToBraille, BrailleChar, BrailleType } from '@/lib/braille'
 import { generateSTL, downloadSTL } from '@/lib/stl-export'
 import { BrailleViewer3D } from '@/components/BrailleViewer3D'
 import { BrailleDisplay } from '@/components/BrailleDisplay'
@@ -11,20 +11,22 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Toaster } from '@/components/ui/sonner'
 import { Download, TextAa, Cube, Code, Copy } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 function App() {
   const [inputText, setInputText] = useState('')
+  const [brailleType, setBrailleType] = useState<BrailleType>('grade1')
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null)
   const [stlCode, setStlCode] = useState<string>('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
   const brailleChars = useMemo<BrailleChar[]>(() => {
     if (!inputText) return []
-    return textToBraille(inputText)
-  }, [inputText])
+    return textToBraille(inputText, brailleType)
+  }, [inputText, brailleType])
 
   const handleGeometryUpdate = useCallback((newGeometry: THREE.BufferGeometry) => {
     setGeometry(newGeometry)
@@ -135,6 +137,25 @@ function App() {
                       onChange={(e) => setInputText(e.target.value.slice(0, maxChars))}
                       className="min-h-[120px] resize-none font-sans"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="braille-type">Braille Type</Label>
+                    <Select value={brailleType} onValueChange={(value) => setBrailleType(value as BrailleType)}>
+                      <SelectTrigger id="braille-type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="grade1">Grade 1 (Letter-by-letter)</SelectItem>
+                        <SelectItem value="grade2">Grade 2 (Contracted)</SelectItem>
+                        <SelectItem value="numeric">Numeric Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {brailleType === 'grade1' && 'Each letter is represented individually'}
+                      {brailleType === 'grade2' && 'Common words are shortened using contractions'}
+                      {brailleType === 'numeric' && 'Optimized for numbers and digits'}
+                    </p>
                   </div>
 
                   <Separator />
@@ -252,7 +273,12 @@ function App() {
           </div>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Models use standard Grade 1 braille specifications for optimal readability</p>
+            <p>Models use standard braille specifications for optimal readability</p>
+            <p className="text-xs mt-1">
+              {brailleType === 'grade1' && 'Grade 1: Uncontracted braille with each letter spelled out'}
+              {brailleType === 'grade2' && 'Grade 2: Contracted braille with common word abbreviations'}
+              {brailleType === 'numeric' && 'Numeric: Specialized format for numerical content'}
+            </p>
           </div>
         </div>
       </div>
