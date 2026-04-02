@@ -24,9 +24,9 @@ export function BrailleViewer3D({
   baseDepth = 3,
   dotRadius = 0.75,
   dotHeight = 0.6,
-  cellWidth = 2.5,
-  cellHeight = 6.2,
-  cellSpacing = 6,
+  cellWidth = 2.7,
+  cellHeight = 6.6,
+  cellSpacing = 7,
   onGeometryUpdate
 }: BrailleViewer3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)

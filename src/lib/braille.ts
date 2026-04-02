@@ -114,8 +114,8 @@ export interface DotPosition {
 }
 
 export function getDotPositions(dotNumbers: number[], cellWidth: number, cellHeight: number, dotHeight: number): DotPosition[] {
-  const dotSpacing = cellWidth / 2
-  const verticalSpacing = cellHeight / 3
+  const dotSpacing = cellWidth
+  const verticalSpacing = cellHeight / 2.5
   
   const dotMap: Record<number, [number, number]> = {
     1: [0, 0],
