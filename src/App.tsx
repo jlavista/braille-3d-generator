@@ -169,18 +169,18 @@ function App() {
                         View STL Code
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[80vh]">
+                    <DialogContent className="max-w-3xl">
                       <DialogHeader>
                         <DialogTitle>STL Code</DialogTitle>
                         <DialogDescription>
                           ASCII STL format for your braille model
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="space-y-4">
-                        <div className="relative rounded-md border bg-muted/50 overflow-hidden">
-                          <div className="h-[400px] w-full overflow-auto">
-                            <pre className="p-4 text-xs font-mono whitespace-pre select-text" style={{ userSelect: 'text', WebkitUserSelect: 'text' }}>
-                              {stlCode}
+                      <div className="flex flex-col gap-4">
+                        <div className="rounded-md border bg-muted/50">
+                          <div className="max-h-[400px] overflow-auto">
+                            <pre className="p-4 text-xs font-mono whitespace-pre select-text">
+{stlCode}
                             </pre>
                           </div>
                         </div>
