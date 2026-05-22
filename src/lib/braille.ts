@@ -424,14 +424,18 @@ export interface DotPosition {
 export function getDotPositions(dotNumbers: number[], cellWidth: number, cellHeight: number, dotHeight: number): DotPosition[] {
   const dotSpacing = cellWidth
   const verticalSpacing = cellHeight / 2.5
+  // Three.js uses a y-up coordinate system, so the top braille row must use the highest y value.
+  const topRow = verticalSpacing * 2
+  const middleRow = verticalSpacing
+  const bottomRow = 0
   
   const dotMap: Record<number, [number, number]> = {
-    1: [0, 0],
-    2: [0, verticalSpacing],
-    3: [0, verticalSpacing * 2],
-    4: [dotSpacing, 0],
-    5: [dotSpacing, verticalSpacing],
-    6: [dotSpacing, verticalSpacing * 2],
+    1: [0, topRow],
+    2: [0, middleRow],
+    3: [0, bottomRow],
+    4: [dotSpacing, topRow],
+    5: [dotSpacing, middleRow],
+    6: [dotSpacing, bottomRow],
   }
   
   return dotNumbers.map(dotNum => {
